@@ -7,7 +7,7 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<VBox prefHeight="618.0" prefWidth="464.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<VBox prefHeight="618.0" prefWidth="464.0" xmlns="http://javafx.com/javafx/8.0.231" xmlns:fx="http://javafx.com/fxml/1" fx:controller="ChatController">
   <children>
       <Pane prefHeight="71.0" prefWidth="464.0">
          <children>
@@ -16,8 +16,8 @@
                   <Font name="Arial" size="16.0" />
                </font>
             </Text>
-            <Button layoutX="398.0" layoutY="16.0" mnemonicParsing="false" text="Save" />
-            <Button layoutX="14.0" layoutY="15.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="49.0" text="Exit" />
+            <Button fx:id="save" layoutX="398.0" layoutY="16.0" mnemonicParsing="false" text="Save" />
+            <Button fx:id="exit" layoutX="14.0" layoutY="15.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="49.0" text="Exit" onAction="#exit" />
          </children>
       </Pane>
       <Pane prefHeight="487.0" prefWidth="464.0" />

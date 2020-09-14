@@ -7,11 +7,11 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox prefHeight="263.0" prefWidth="493.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<VBox prefHeight="263.0" prefWidth="493.0" xmlns="http://javafx.com/javafx/8.0.231" xmlns:fx="http://javafx.com/fxml/1" fx:controller="FxmlController">
   <children>
       <Pane prefHeight="350.0" prefWidth="543.0">
          <children>
-            <Label layoutX="51.0" layoutY="51.0" prefHeight="26.0" prefWidth="117.0" text="IP address">
+            <Label fx:id="label1" layoutX="51.0" layoutY="51.0" prefHeight="26.0" prefWidth="117.0" text="IP address">
                <font>
                   <Font name="Arial" size="22.0" />
                </font>
@@ -21,9 +21,9 @@
                   <Font name="Arial" size="22.0" />
                </font>
             </Label>
-            <TextField layoutX="206.0" layoutY="101.0" prefHeight="35.0" prefWidth="233.0" />
-            <TextField layoutX="206.0" layoutY="46.0" prefHeight="35.0" prefWidth="233.0" />
-            <Button layoutX="169.0" layoutY="167.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="151.0" text="Enter">
+            <TextField fx:id="ipAddress" layoutX="206.0" layoutY="101.0" prefHeight="35.0" prefWidth="233.0" />
+            <TextField fx:id="portNumber" layoutX="206.0" layoutY="46.0" prefHeight="35.0" prefWidth="233.0" />
+            <Button fx:id="submit" layoutX="169.0" layoutY="167.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="151.0" onAction="#submit" text="Enter">
                <font>
                   <Font name="Arial" size="26.0" />
                </font>
