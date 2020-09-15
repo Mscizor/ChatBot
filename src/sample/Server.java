@@ -6,24 +6,24 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
-public class Driver extends Application{
+public class Server extends Application{
 
     @Override
     public void start(Stage primaryStage) throws Exception {
 
         FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource("Login.fxml"));
+        loader.setLocation(getClass().getResource("ChatServer.fxml"));
 
         Parent root = loader.load();
 
         Scene scene = new Scene(root);
         primaryStage.setResizable(false);
-        primaryStage.setTitle("Login");
+        primaryStage.setTitle("Chat Server");
         primaryStage.setScene(scene);
         primaryStage.show();
 
-        loader.<FxmlController>getController().initialize();
-        loader.<FxmlController>getController().setStage(primaryStage);
+        loader.<ChatServerController>getController().initialize();
+        loader.<ChatServerController>getController().setStage(primaryStage);
 
     }
 

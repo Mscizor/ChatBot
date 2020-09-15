@@ -1,26 +1,24 @@
 package sample;
-//import javafx.scene.control.*;
-//import javafx.fxml.FXML
-import javafx.scene.control.TextField;
-
-import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Node;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 import java.io.IOException;
-public class ChatController{
+public class ChatClientGUIController{
     @FXML
     private Stage stage;
     @FXML
     private Button exit;
     @FXML
     private Button save;
+    @FXML
+    private Button file;
+    @FXML
+    private Button send;
 
     /*
     This method sends the user to the Login window.
@@ -31,10 +29,26 @@ public class ChatController{
     }
 
     /*
-    This method sends the user to the Login window. (temporary just to check if its working)
+    This method saves the log
     */
     @FXML
     public void save(){
+
+    }
+
+    /*
+    This method sends the file to the other user
+    */
+    @FXML
+    public void file(){
+
+    }
+
+    /*
+    This method sends the message to the other user
+    */
+    @FXML
+    public void send(){
 
     }
 
@@ -43,9 +57,9 @@ public class ChatController{
         exit.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                System.out.println("Exit");
+                System.out.println("Exit clicked");
                 try {
-                    switchSceneToLoginExit("Login.fxml");
+                    switchSceneToChatClient("ChatClient.fxml");
 
                 } catch (IOException s) {
                     s.printStackTrace();
@@ -56,41 +70,34 @@ public class ChatController{
         save.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                System.out.println("saved");
-                try {
-                    switchSceneToLoginSave("Login.fxml");
-
-                } catch (IOException s) {
-                    s.printStackTrace();
-                }
+                System.out.println("Save clicked");
             }
         });
-        
+
+        file.setOnMousePressed(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                System.out.println("File clicked");
+            }
+        });
+
+        send.setOnMousePressed(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                System.out.println("Send clicked");
+            }
+        });
+
     }
 
-    public void switchSceneToLoginExit(String fxml) throws IOException {
+    public void switchSceneToChatClient(String fxml) throws IOException {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource(fxml));
         Parent login = loader.load();
         Scene scene = new Scene(login);
         Stage stage = (Stage) exit.getScene().getWindow();
 
-        FxmlController controller = loader.getController();
-        controller.initialize();
-
-        stage.setScene(scene);
-        stage.centerOnScreen();
-        stage.show();
-    }
-
-    public void switchSceneToLoginSave(String fxml) throws IOException {
-        FXMLLoader loader = new FXMLLoader();
-        loader.setLocation(getClass().getResource(fxml));
-        Parent login = loader.load();
-        Scene scene = new Scene(login);
-        Stage stage = (Stage) save.getScene().getWindow();
-
-        FxmlController controller = loader.getController();
+        ChatClientController controller = loader.getController();
         controller.initialize();
 
         stage.setScene(scene);
