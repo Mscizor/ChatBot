@@ -22,57 +22,73 @@ public class ChatController{
     @FXML
     private Button save;
 
-
     /*
-    This method sends the user to the ChatGUI window.
+    This method sends the user to the Login window.
     */
-
     @FXML
     public void exit(){
-            //try-catch method to continue the loading of the title screen without interference due to an error.
-            //IOException (Input / Output Exception)
-        try {
-            switchSceneToLogin("Login.fxml");
-            System.out.println("Logged out");
-        } catch (IOException s) {
-            s.printStackTrace();
-        }
+
     }
 
     /*
-    This method sends the user to the ChatGUI window.
+    This method sends the user to the Login window. (temporary just to check if its working)
     */
     @FXML
     public void save(){
-            //try-catch method to continue the loading of the title screen without interference due to an error.
-            //IOException (Input / Output Exception)
-        try {
-            switchSceneToLogin("Login.fxml");
-            System.out.println("Saved");
-        } catch (IOException s) {
-            s.printStackTrace();
-        }
+
     }
 
     public void initialize() {
-        /*
+
         exit.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
                 System.out.println("Exit");
+                try {
+                    switchSceneToLoginExit("Login.fxml");
+
+                } catch (IOException s) {
+                    s.printStackTrace();
+                }
             }
         });
-        */
 
+        save.setOnMousePressed(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                System.out.println("saved");
+                try {
+                    switchSceneToLoginSave("Login.fxml");
+
+                } catch (IOException s) {
+                    s.printStackTrace();
+                }
+            }
+        });
         
     }
 
-    public void switchSceneToLogin(String fxml) throws IOException {
+    public void switchSceneToLoginExit(String fxml) throws IOException {
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource(fxml));
         Parent login = loader.load();
         Scene scene = new Scene(login);
         Stage stage = (Stage) exit.getScene().getWindow();
+
+        FxmlController controller = loader.getController();
+        controller.initialize();
+
+        stage.setScene(scene);
+        stage.centerOnScreen();
+        stage.show();
+    }
+
+    public void switchSceneToLoginSave(String fxml) throws IOException {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource(fxml));
+        Parent login = loader.load();
+        Scene scene = new Scene(login);
+        Stage stage = (Stage) save.getScene().getWindow();
 
         FxmlController controller = loader.getController();
         controller.initialize();

@@ -27,17 +27,7 @@ public class FxmlController{
     */
     @FXML
     public void submit(){
-        if (stage != null) {
-            stage.hide();
-            //try-catch method to continue the loading of the title screen without interference due to an error.
-            //IOException (Input / Output Exception)
-            try {
-                switchSceneToChatGUI("ChatGUI.fxml");
 
-            } catch (IOException s) {
-                s.printStackTrace();
-            }
-        }
     }
 
     public void initialize() {
@@ -45,7 +35,13 @@ public class FxmlController{
         submit.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                System.out.println("Logged in");
+                try {
+                    switchSceneToChatGUI("ChatGUI.fxml");
+                    System.out.println("Logged in");
+
+                } catch (IOException s) {
+                    s.printStackTrace();
+                }
             }
         });
 
