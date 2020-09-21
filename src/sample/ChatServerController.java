@@ -18,8 +18,6 @@ public class ChatServerController{
     @FXML
     private Stage stage;
     @FXML
-    public TextField ipAddress;
-    @FXML
     public TextField portNumber;
     @FXML
     private Button submit;
@@ -32,6 +30,13 @@ public class ChatServerController{
 
     }
 
+    public void alert(String s) {
+        Alert fail = new Alert(Alert.AlertType.INFORMATION);
+        fail.setHeaderText("Error");
+        fail.setContentText(s);
+        fail.showAndWait();
+    }
+
     public void initialize(ChatServerModel chatServerModel) {
         this.chatServerModel = chatServerModel;
 
@@ -41,10 +46,8 @@ public class ChatServerController{
                 try {
                     boolean empty=false;
                     boolean numeric= true;
-                    ChatServerController c = new ChatServerController();
                     //Check if both inputs are empty
-                    if ((ipAddress.getText() == null || ipAddress.getText().trim().isEmpty()) ||
-                            portNumber.getText() == null || portNumber.getText().trim().isEmpty()) {
+                    if (portNumber.getText() == null || portNumber.getText().trim().isEmpty()) {
                         empty = true;
                     }
 
@@ -55,25 +58,23 @@ public class ChatServerController{
                         }
                         catch (NumberFormatException e){
                             numeric = false;
-                            Alert fail = new Alert(Alert.AlertType.INFORMATION);
-                            fail.setHeaderText("Error");
-                            fail.setContentText("Port number should be a number");
-                            fail.showAndWait();
+                            alert("Port number should be a number");
                         }
                         if (numeric) {
-                            chatServerModel.setIpAddress(ipAddress.getText());
-                            chatServerModel.setPortNumber(portNumber.getText());
-                            System.out.println(chatServerModel.getIpAddress());
-                            System.out.println(chatServerModel.getPortNumber());
-                            switchSceneToServerGUI("ChatServerGUI.fxml");
-                            System.out.println("Server connected");
+                            if ((Integer.parseInt(portNumber.getText()) > 0) &&
+                                    (Integer.parseInt(portNumber.getText()) <= 65535)) {
+                                chatServerModel.setPortNumber(portNumber.getText());
+                                System.out.println(chatServerModel.getPortNumber());
+                                switchSceneToServerGUI("ChatServerGUI.fxml");
+                                System.out.println("Server connected");
+                            }
+                            else {
+                                alert("Invalid port Number");
+                            }
                         }
                     }
                     else{
-                        Alert fail = new Alert(Alert.AlertType.INFORMATION);
-                        fail.setHeaderText("Error");
-                        fail.setContentText("Type in the missing input");
-                        fail.showAndWait();
+                        alert("Type in the missing input");
                     }
                 } catch (IOException s) {
                     s.printStackTrace();
