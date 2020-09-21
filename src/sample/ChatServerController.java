@@ -1,4 +1,5 @@
 package sample;
+import javafx.scene.control.Alert;
 import javafx.scene.control.TextField;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -11,13 +12,15 @@ import javafx.scene.Parent;
 import java.io.IOException;
 
 public class ChatServerController{
-    @FXML
-    private Stage stage;
+
+    private ChatServerModel chatServerModel;
 
     @FXML
-    public TextField ipAddress = null;
+    private Stage stage;
     @FXML
-    public TextField portNumber = null;
+    public TextField ipAddress;
+    @FXML
+    public TextField portNumber;
     @FXML
     private Button submit;
 
@@ -29,15 +32,49 @@ public class ChatServerController{
 
     }
 
-    public void initialize() {
+    public void initialize(ChatServerModel chatServerModel) {
+        this.chatServerModel = chatServerModel;
 
         submit.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
                 try {
-                    switchSceneToServerGUI("ChatServerGUI.fxml");
-                    System.out.println("Server connected");
+                    boolean empty=false;
+                    boolean numeric= true;
+                    ChatServerController c = new ChatServerController();
+                    //Check if both inputs are empty
+                    if ((ipAddress.getText() == null || ipAddress.getText().trim().isEmpty()) ||
+                            portNumber.getText() == null || portNumber.getText().trim().isEmpty()) {
+                        empty = true;
+                    }
 
+                    if (!empty) {
+                        //Check if port number is number
+                        try {
+                            int x = Integer.parseInt(portNumber.getText());
+                        }
+                        catch (NumberFormatException e){
+                            numeric = false;
+                            Alert fail = new Alert(Alert.AlertType.INFORMATION);
+                            fail.setHeaderText("Error");
+                            fail.setContentText("Port number should be a number");
+                            fail.showAndWait();
+                        }
+                        if (numeric) {
+                            chatServerModel.setIpAddress(ipAddress.getText());
+                            chatServerModel.setPortNumber(portNumber.getText());
+                            System.out.println(chatServerModel.getIpAddress());
+                            System.out.println(chatServerModel.getPortNumber());
+                            switchSceneToServerGUI("ChatServerGUI.fxml");
+                            System.out.println("Server connected");
+                        }
+                    }
+                    else{
+                        Alert fail = new Alert(Alert.AlertType.INFORMATION);
+                        fail.setHeaderText("Error");
+                        fail.setContentText("Type in the missing input");
+                        fail.showAndWait();
+                    }
                 } catch (IOException s) {
                     s.printStackTrace();
                 }
@@ -54,7 +91,7 @@ public class ChatServerController{
         Stage stage = (Stage) submit.getScene().getWindow();
 
         ChatServerGUIController controller = loader.getController();
-        controller.initialize();
+        controller.initialize(chatServerModel);
 
         stage.setScene(scene);
         stage.centerOnScreen();
