@@ -46,7 +46,7 @@ public class ChatServerController{
                 try {
                     boolean empty=false;
                     boolean numeric= true;
-                    //Check if both inputs are empty
+                    //Check if input is empty
                     if (portNumber.getText() == null || portNumber.getText().trim().isEmpty()) {
                         empty = true;
                     }
