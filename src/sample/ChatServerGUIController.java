@@ -11,13 +11,20 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 
 public class ChatServerGUIController{
 
     private ChatServerModel chatServerModel;
+    private ArrayList<String> log = new ArrayList<String>();
+    private Boolean connected = true;
+    private ServerSocket serverSocket;
+    private Socket serverEndpointOne;
+    private Socket serverEndpointTwo;
 
     @FXML
     private Stage stage;
@@ -39,49 +46,86 @@ public class ChatServerGUIController{
 
     }
 
+    public String getLog() {
+        String s = "";
+        for (int i=0;i<this.log.size();i++) {
+            s = s + this.log.get(i);
+            s = s + "\n";
+        }
+        return s;
+    }
+
+    public void addLog(String newLog) {
+        this.log.add(newLog);
+    }
+
     public void initialize(ChatServerModel chatServerModel) {
         this.chatServerModel = chatServerModel;
         labelPort.setText(chatServerModel.getPortNumber());
 
         int nPort = Integer.parseInt(chatServerModel.getPortNumber());
-        ServerSocket serverSocket;
-        Socket serverEndpointOne;
-        Socket serverEndpointTwo;
-        String messageOne;
-        String messageTwo;
-        try
-        {
+        //Connect to server socket
+        try {
             serverSocket = new ServerSocket(nPort);
-            serverLog.setText("Server: Listening on port " + chatServerModel.getPortNumber() + "...");
-            serverEndpointOne = serverSocket.accept();
-            serverLog.setText(serverLog.getText() + "\nServer: New client connected: " + serverEndpointOne.getRemoteSocketAddress());
-
-            serverEndpointTwo = serverSocket.accept();
-            serverLog.setText(serverLog.getText() + "\nServer: New client connected: " + serverEndpointTwo.getRemoteSocketAddress());
-            /*
-            DataInputStream disReaderOne = new DataInputStream(serverEndpointOne.getInputStream());
-            chatServerModel.setUserNameOne(disReaderOne.readUTF());
-            messageOne = disReaderOne.readUTF();
-
-            DataInputStream disReaderTwo = new DataInputStream(serverEndpointTwo.getInputStream());
-            usernameTwo = disReaderTwo.readUTF();
-            messageTwo = disReaderTwo.readUTF();
-
-            DataOutputStream dosWriterOne = new DataOutputStream(serverEndpointOne.getOutputStream());
-            dosWriterOne.writeUTF("Message from " + usernameTwo + ": " + messageTwo);
-            DataOutputStream dosWriterTwo = new DataOutputStream(serverEndpointTwo.getOutputStream());
-            dosWriterTwo.writeUTF("Message from " + usernameOne + ": " + messageOne);
-            */
+            System.out.println("Server: Listening on port " + nPort + "...");
+            serverLog.setText("Server: Listening on port " + nPort + "...");
         }
-        catch (Exception e)
-        {
+        catch(IOException e) {
             e.printStackTrace();
         }
+
+        //Loop accept clients until disconnected
+
+            serverEndpointOne = null;
+
+            try
+            {
+                //accepts first client
+                serverEndpointOne = serverSocket.accept();
+                System.out.println("A new client is connected : " + serverEndpointOne);
+                serverLog.setText(serverLog.getText() + "\nA new client is connected : " + serverEndpointOne.getRemoteSocketAddress());
+
+                //accepts second client
+                serverEndpointTwo = serverSocket.accept();
+                System.out.println("A new client is connected : " + serverEndpointTwo);
+                serverLog.setText(serverLog.getText() + "\nA new client is connected : " + serverEndpointTwo.getRemoteSocketAddress());
+
+                // obtaining input and out streams
+                DataInputStream dis1 = new DataInputStream(serverEndpointOne.getInputStream());
+                DataOutputStream dos1 = new DataOutputStream(serverEndpointOne.getOutputStream());
+                DataInputStream dis2 = new DataInputStream(serverEndpointOne.getInputStream());
+                DataOutputStream dos2 = new DataOutputStream(serverEndpointOne.getOutputStream());
+
+                System.out.println("Assigning new thread for this client");
+
+                // create a new thread object
+                ClientHandler c1 = new ClientHandler(serverEndpointOne, dis1, dos1);
+                Thread t1 = new Thread (c1);
+
+                ClientHandler c2 = new ClientHandler(serverEndpointTwo, dis2, dos2);
+                Thread t2 = new Thread (c2);
+
+                // Invoking the start() method
+                t1.start();
+                t2.start();
+
+            }
+            catch (IOException e){
+                try {
+                    serverEndpointOne.close();
+                }
+                catch(IOException e1) {
+                    e1.printStackTrace();
+                }
+                e.printStackTrace();
+            }
+
 
         disconnect.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
                 try {
+                    connected = false;
                     switchSceneToChatServer("ChatServer.fxml");
                     /*
                     serverEndpointOne.close();

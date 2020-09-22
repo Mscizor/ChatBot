@@ -65,8 +65,6 @@ public class ChatClientGUIController{
         int nPort = Integer.parseInt(chatClientModel.getPortNumber());
         try {
             Socket clientEndpoint = new Socket(sServerAddress, nPort);
-            System.out.printf("%s: Connecting to server at %s\n", chatClientModel.getUserName(), clientEndpoint.getRemoteSocketAddress());
-            System.out.printf("%s: Connected to server at %s\n", chatClientModel.getUserName(), clientEndpoint.getRemoteSocketAddress());
         }
         catch(Exception e) {
             e.printStackTrace();
