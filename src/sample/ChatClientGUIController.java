@@ -10,7 +10,10 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.MouseEvent;
 import javafx.stage.Stage;
 
+import javax.swing.*;
+import javax.swing.filechooser.FileSystemView;
 import java.io.DataOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.net.Socket;
 
@@ -91,8 +94,8 @@ public class ChatClientGUIController{
         exit.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                System.out.println("Exit clicked");
                 try {
+
                     switchSceneToChatClient("ChatClient.fxml");
 
                 } catch (IOException s) {
@@ -111,6 +114,15 @@ public class ChatClientGUIController{
         file.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
+                JFileChooser jfc = new JFileChooser(FileSystemView.getFileSystemView().getHomeDirectory());
+
+                int returnValue = jfc.showOpenDialog(null);
+                // int returnValue = jfc.showSaveDialog(null);
+
+                if (returnValue == JFileChooser.APPROVE_OPTION) {
+                    File selectedFile = jfc.getSelectedFile();
+                    System.out.println(selectedFile.getAbsolutePath());
+                }
                 System.out.println("File clicked");
             }
         });
@@ -120,9 +132,8 @@ public class ChatClientGUIController{
             public void handle(MouseEvent event) {
                 try {
                     DataOutputStream dos1 = new DataOutputStream(clientEndpoint.getOutputStream());
-                    dos1.writeUTF( "\n" + chatClientModel.getUserName() + ": " + textMessage.getText());
-                    messageLog.setText(messageLog.getText() + "\n" + chatClientModel.getUserName() + ": " + textMessage.getText());
-                    System.out.println("Send clicked");
+                    dos1.writeUTF( chatClientModel.getUserName() + ": " + textMessage.getText() + "\n");
+                    messageLog.setText(messageLog.getText() + chatClientModel.getUserName() + ": " + textMessage.getText() + "\n");
                 }
                 catch(IOException e) {
                     e.printStackTrace();

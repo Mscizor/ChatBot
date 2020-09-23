@@ -15,12 +15,14 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
 public class ChatServerGUIController{
 
     private ChatServerModel chatServerModel;
-    private ArrayList<String> log = new ArrayList<String>();
+    private String log;
     private Boolean connected = true;
     private ServerSocket serverSocket;
     private Socket serverEndpointOne;
@@ -47,16 +49,21 @@ public class ChatServerGUIController{
     }
 
     public String getLog() {
-        String s = "";
-        for (int i=0;i<this.log.size();i++) {
-            s = s + this.log.get(i);
-            s = s + "\n";
-        }
-        return s;
+        return log;
     }
 
     public void addLog(String newLog) {
-        this.log.add(newLog);
+        this.log = log;
+    }
+
+    /*
+    Returns a string of Date and Time
+    */
+    public String getDateAndTime() {
+        LocalDateTime myDateObj = LocalDateTime.now();
+        DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+        String formattedDate = myDateObj.format(myFormatObj);
+        return formattedDate;
     }
 
     public void initialize(ChatServerModel chatServerModel) {
@@ -67,27 +74,27 @@ public class ChatServerGUIController{
         //Connect to server socket
         try {
             serverSocket = new ServerSocket(nPort);
-            System.out.println("Server: Listening on port " + nPort + "...");
-            serverLog.setText("Server: Listening on port " + nPort + "...");
+            //get date and time for timestamp
+            String formattedDate = getDateAndTime();
+            serverLog.setText(formattedDate + "\t\t\t" +"Server: Listening on port " + nPort + "...");
         }
         catch(IOException e) {
             e.printStackTrace();
         }
 
             serverEndpointOne = null;
-
             try {
                 //accepts first client
                 serverEndpointOne = serverSocket.accept();
-                System.out.println("A new client is connected : " + serverEndpointOne);
-                serverLog.setText(serverLog.getText() + "\nA new client is connected : " + serverEndpointOne.getRemoteSocketAddress());
+                //get date and time for timestamp
+                String formattedDate = getDateAndTime();
+                serverLog.setText(serverLog.getText() + "\n" + formattedDate + "\t\t\t" + "A new client is connected : " + serverEndpointOne.getRemoteSocketAddress());
 
                 //accepts second client
                 serverEndpointTwo = serverSocket.accept();
-                System.out.println("A new client is connected : " + serverEndpointTwo);
-                serverLog.setText(serverLog.getText() + "\nA new client is connected : " + serverEndpointTwo.getRemoteSocketAddress());
-
-                System.out.println("Assigning new thread for this client");
+                //get date and time for timestamp
+                formattedDate = getDateAndTime();
+                serverLog.setText(serverLog.getText() + "\n" + formattedDate + "\t\t\t" + "A new client is connected : " + serverEndpointTwo.getRemoteSocketAddress());
 
                 // create a new thread object
                 ClientHandler c1 = new ClientHandler(serverEndpointOne, serverEndpointTwo, serverLog);
@@ -99,7 +106,6 @@ public class ChatServerGUIController{
                 // Invoking the start() method
                 t1.start();
                 t2.start();
-
             } catch (IOException e) {
                 try {
                     serverEndpointOne.close();

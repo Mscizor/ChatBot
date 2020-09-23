@@ -5,6 +5,8 @@ import javafx.scene.control.TextArea;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.net.Socket;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 public class ClientHandler implements Runnable{
     Socket s1;
@@ -30,7 +32,14 @@ public class ClientHandler implements Runnable{
                 received = dis1.readUTF();
                 //write message to socket 2
                 dos2.writeUTF(received);
-                serverLog.setText(serverLog.getText()+received);
+
+                //get date and time for timestamp
+                LocalDateTime myDateObj = LocalDateTime.now();
+                DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("dd-MM-yyyy HH:mm:ss");
+                String formattedDate = myDateObj.format(myFormatObj);
+
+                //set serverLog text area
+                serverLog.setText(serverLog.getText() + formattedDate + "\t\t\t" + s1.getRemoteSocketAddress() + " sent a message to " + s2.getRemoteSocketAddress() + "\n");
 
             } catch (Exception e) {
                 e.printStackTrace();
