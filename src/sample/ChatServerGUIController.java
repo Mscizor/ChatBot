@@ -94,7 +94,7 @@ public class ChatServerGUIController{
                 serverEndpointTwo = serverSocket.accept();
                 //get date and time for timestamp
                 formattedDate = getDateAndTime();
-                serverLog.setText(serverLog.getText() + "\n" + formattedDate + "\t\t\t" + "A new client is connected : " + serverEndpointTwo.getRemoteSocketAddress());
+                serverLog.setText(serverLog.getText() + "\n" + formattedDate + "\t\t\t" + "A new client is connected : " + serverEndpointTwo.getRemoteSocketAddress() + "\n");
 
                 // create a new thread object
                 ClientHandler c1 = new ClientHandler(serverEndpointOne, serverEndpointTwo, serverLog);
