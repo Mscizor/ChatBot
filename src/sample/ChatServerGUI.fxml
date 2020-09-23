@@ -8,9 +8,7 @@
 <?import javafx.scene.text.Font?>
 
 <VBox prefHeight="400.0" prefWidth="640.0" xmlns="http://javafx.com/javafx/8.0.231" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.ChatServerGUIController">
-   <children>
       <Pane prefHeight="425.0" prefWidth="640.0">
-         <children>
             <Label layoutX="228.0" layoutY="20.0" prefHeight="50.0" prefWidth="185.0" text="Chat Server">
                <font>
                   <Font name="Arial" size="34.0" />
@@ -33,7 +31,5 @@
                </font>
             </Label>
             <Button fx:id="disconnect" layoutX="41.0" layoutY="33.0" mnemonicParsing="false" onAction="#disconnect" prefHeight="28.0" prefWidth="83.0" text="Disconnect" />
-         </children>
       </Pane>
-   </children>
 </VBox>

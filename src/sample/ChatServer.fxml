@@ -8,9 +8,7 @@
 <?import javafx.scene.text.Font?>
 
 <VBox prefHeight="312.0" prefWidth="493.0" xmlns="http://javafx.com/javafx/8.0.231" xmlns:fx="http://javafx.com/fxml/1" fx:controller="sample.ChatServerController">
-  <children>
       <Pane prefHeight="322.0" prefWidth="493.0">
-         <children>
             <Label layoutX="52.0" layoutY="140.0" text="Port number">
                <font>
                   <Font name="Arial" size="22.0" />
@@ -27,7 +25,5 @@
                   <Font name="Arial" size="37.0" />
                </font>
             </Label>
-         </children>
       </Pane>
-  </children>
 </VBox>

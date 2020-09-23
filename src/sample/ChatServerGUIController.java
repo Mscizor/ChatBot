@@ -74,12 +74,9 @@ public class ChatServerGUIController{
             e.printStackTrace();
         }
 
-        //Loop accept clients until disconnected
-
             serverEndpointOne = null;
 
-            try
-            {
+            try {
                 //accepts first client
                 serverEndpointOne = serverSocket.accept();
                 System.out.println("A new client is connected : " + serverEndpointOne);
@@ -90,31 +87,24 @@ public class ChatServerGUIController{
                 System.out.println("A new client is connected : " + serverEndpointTwo);
                 serverLog.setText(serverLog.getText() + "\nA new client is connected : " + serverEndpointTwo.getRemoteSocketAddress());
 
-                // obtaining input and out streams
-                DataInputStream dis1 = new DataInputStream(serverEndpointOne.getInputStream());
-                DataOutputStream dos1 = new DataOutputStream(serverEndpointOne.getOutputStream());
-                DataInputStream dis2 = new DataInputStream(serverEndpointOne.getInputStream());
-                DataOutputStream dos2 = new DataOutputStream(serverEndpointOne.getOutputStream());
-
                 System.out.println("Assigning new thread for this client");
 
                 // create a new thread object
-                ClientHandler c1 = new ClientHandler(serverEndpointOne, dis1, dos1);
-                Thread t1 = new Thread (c1);
+                ClientHandler c1 = new ClientHandler(serverEndpointOne, serverEndpointTwo, serverLog);
+                Thread t1 = new Thread(c1);
 
-                ClientHandler c2 = new ClientHandler(serverEndpointTwo, dis2, dos2);
-                Thread t2 = new Thread (c2);
+                ClientHandler c2 = new ClientHandler(serverEndpointTwo, serverEndpointOne, serverLog);
+                Thread t2 = new Thread(c2);
 
                 // Invoking the start() method
                 t1.start();
                 t2.start();
 
-            }
-            catch (IOException e){
+            } catch (IOException e) {
                 try {
                     serverEndpointOne.close();
-                }
-                catch(IOException e1) {
+                    serverEndpointTwo.close();
+                } catch (IOException e1) {
                     e1.printStackTrace();
                 }
                 e.printStackTrace();

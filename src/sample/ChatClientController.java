@@ -103,6 +103,7 @@ public class ChatClientController{
         controller.initialize(chatClientModel);
 
         stage.setScene(scene);
+        stage.setTitle(chatClientModel.getUserName());
         stage.centerOnScreen();
         stage.show();
     }

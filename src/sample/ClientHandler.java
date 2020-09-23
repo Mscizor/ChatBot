@@ -1,21 +1,20 @@
 package sample;
 
+import javafx.scene.control.TextArea;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.IOException;
 import java.net.Socket;
 
 public class ClientHandler implements Runnable{
+    Socket s1;
+    Socket s2;
+    TextArea serverLog;
 
-    final DataInputStream dis;
-    final DataOutputStream dos;
-    final Socket s;
-    private int nPort;
-
-    public ClientHandler(Socket s, DataInputStream dis, DataOutputStream dos){
-        this.s = s;
-        this.dis = dis;
-        this.dos = dos;
+    public ClientHandler(Socket s1, Socket s2, TextArea serverLog){
+        this.s1 = s1;
+        this.s2 = s2;
+        this.serverLog = serverLog;
     }
 
     @Override
@@ -25,10 +24,15 @@ public class ClientHandler implements Runnable{
         while (true)
         {
             try {
-                // receive the answer from client
-                received = dis.readUTF();
+                DataInputStream dis1 = new DataInputStream(s1.getInputStream());
+                DataOutputStream dos2 = new DataOutputStream(s2.getOutputStream());
+                // receive message from socket 1
+                received = dis1.readUTF();
+                //write message to socket 2
+                dos2.writeUTF(received);
+                serverLog.setText(serverLog.getText()+received);
 
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
