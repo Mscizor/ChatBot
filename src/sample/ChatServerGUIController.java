@@ -10,9 +10,7 @@ import javafx.scene.Scene;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.time.LocalDateTime;
@@ -185,7 +183,17 @@ public class ChatServerGUIController{
         saveLog.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                System.out.println("save clicked");
+                try {
+                    File file = new File("Server_log.txt");
+                    FileWriter writeFile = new FileWriter("Server_log.txt");
+                    file.createNewFile();
+                    serverLog.setText(serverLog.getText() + getDateAndTime() + "\t\t\tServer log saved in Server_log.txt\n");
+                    writeFile.write(serverLog.getText());
+                    writeFile.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
             }
         });
 
