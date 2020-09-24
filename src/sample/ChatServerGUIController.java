@@ -25,8 +25,9 @@ public class ChatServerGUIController{
     private String log;
     private Boolean connected = true;
     private ServerSocket serverSocket;
-    private Socket serverEndpointOne = null;
-    private Socket serverEndpointTwo = null;
+    volatile private Socket serverEndpointOne = null;
+    volatile private Socket serverEndpointTwo = null;
+    private Socket tempSocket = null;
 
     @FXML
     private Stage stage;
@@ -115,63 +116,43 @@ public class ChatServerGUIController{
                     t2.start();
                     Boolean connected = true;
                     while (true) {
-                        //if both endpoints are null
-                        if (serverEndpointOne == null && serverEndpointTwo == null) {
-                            System.out.println("BOTH");
-
-                            //accepts first client
-                            System.out.println("both accept");
-                            serverEndpointOne = serverSocket.accept();
-                            //get date and time for timestamp
-                            formattedDate = getDateAndTime();
-                            serverLog.setText(serverLog.getText() + "\n" + formattedDate + "\t\t\t" + "A new client is connected : " + serverEndpointOne.getRemoteSocketAddress());
-
-                            //accepts second client
-                            serverEndpointTwo = serverSocket.accept();
-                            //get date and time for timestamp
-                            formattedDate = getDateAndTime();
-                            serverLog.setText(serverLog.getText() + formattedDate + "\t\t\t" + "A new client is connected : " + serverEndpointTwo.getRemoteSocketAddress() + "\n");
-
-                            //set socket
-                            c1.setSocket(serverEndpointOne,serverEndpointTwo);
-                            c2.setSocket(serverEndpointTwo,serverEndpointOne);
+                        if (!c1.getConnected()) {
+                            c1.setConnected(true);
+                            serverEndpointOne = null;
                         }
-                        else if (serverEndpointOne == null) { //if endpoint one is null
-                            System.out.println("FIRST");
+                        if (!c2.getConnected()) {
+                            c2.setConnected(true);
+                            serverEndpointTwo = null;
+                        }
+                        if (serverEndpointOne == null) { //if endpoint one is null
                             //accepts first client
-                            System.out.println("first accept");
                             serverEndpointOne = serverSocket.accept();
                             //get date and time for timestamp
                             formattedDate = getDateAndTime();
                             serverLog.setText(serverLog.getText() + formattedDate + "\t\t\t" + "A new client is connected : " + serverEndpointOne.getRemoteSocketAddress() + "\n");
-
-                            c1.setSocket(serverEndpointOne,serverEndpointTwo);
-                            c2.setSocket(serverEndpointTwo,serverEndpointOne);
+                            System.out.println("Endpoint one");
+                            c1.setSocket1(serverEndpointOne);
+                            c2.setSocket2(serverEndpointOne);
+                            System.out.println("Endpoint two");
+                            c1.setSocket2(serverEndpointTwo);
+                            c2.setSocket1(serverEndpointTwo);
+                            c1.setConnected(false);
                         }
-                        else if (serverEndpointTwo == null) { //if endpoint two is null\
-                            System.out.println("SECOND");
+                        if (serverEndpointTwo == null) { //if endpoint two is null
                             //accepts second client
-                            System.out.println("second accept");
                             serverEndpointTwo = serverSocket.accept();
                             //get date and time for timestamp
                             formattedDate = getDateAndTime();
                             serverLog.setText(serverLog.getText() + formattedDate + "\t\t\t" + "A new client is connected : " + serverEndpointTwo.getRemoteSocketAddress() + "\n");
                             // create a new thread object
                             //c2 = new ClientHandler(serverEndpointTwo, serverEndpointOne, serverLog);
-                            c1.setSocket(serverEndpointOne,serverEndpointTwo);
-                            c2.setSocket(serverEndpointTwo,serverEndpointOne);
-                            //t2 = new Thread(c2);
-                            //t2.start();
-                        }
-                        if (c1.getConnected() == false) {
-                            System.out.println("c1 false");
-                            //c1.setConnected(true);
-                            serverEndpointOne = null;
-                        }
-                        if (c2.getConnected() == false) {
-                            System.out.println("c2 false");
-                            //c2.setConnected(true);
-                            serverEndpointTwo = null;
+                            System.out.println("Endpoint two");
+                            c2.setSocket1(serverEndpointTwo);
+                            c1.setSocket2(serverEndpointTwo);
+                            System.out.println("Endpoint one");
+                            c2.setSocket2(serverEndpointOne);
+                            c1.setSocket1(serverEndpointOne);
+                            c2.setConnected(false);
                         }
                     }
                 } catch (IOException e) {

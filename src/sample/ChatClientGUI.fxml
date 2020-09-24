@@ -13,7 +13,7 @@
       <TextField fx:id="txtConn" editable="false" layoutX="353.0" layoutY="20.0" opacity="0.0" prefHeight="25.0" prefWidth="62.0" />
       </Pane>
       <Pane prefHeight="487.0" prefWidth="464.0">
-            <TextArea fx:id="messageLog" layoutX="27.0" layoutY="14.0" prefHeight="458.0" prefWidth="410.0" />
+            <TextArea fx:id="messageLog" editable="false" layoutX="27.0" layoutY="14.0" prefHeight="458.0" prefWidth="410.0" />
       </Pane>
       <Pane prefHeight="77.0" prefWidth="464.0">
             <Button fx:id="file" layoutX="27.0" layoutY="19.0" mnemonicParsing="false" onAction="#file" text="File" />
