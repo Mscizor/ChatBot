@@ -74,7 +74,6 @@ public class ChatClientGUIController{
         catch(Exception e) {
             e.printStackTrace();
         }
-        System.out.println("CHATCLIENTGUICONTROLLER");
         ClientMessages c1 = new ClientMessages(clientEndpoint, messageLog);
 
         try {
@@ -146,9 +145,10 @@ public class ChatClientGUIController{
             @Override
             public void handle(MouseEvent event) {
                 try {
-                    System.out.println(clientEndpoint + " send");
+                    //Send message to server
                     DataOutputStream dos1 = new DataOutputStream(clientEndpoint.getOutputStream());
-                    dos1.writeUTF("message " + chatClientModel.getUserName() + ": " + textMessage.getText());
+                    dos1.writeUTF(chatClientModel.getUserName() + ": " + textMessage.getText());
+                    //Appends message to messageLog
                     messageLog.setText(messageLog.getText() + chatClientModel.getUserName() + ": " + textMessage.getText() + "\n");
                 }
                 catch(IOException e) {

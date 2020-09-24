@@ -74,7 +74,6 @@ public class ChatClientController{
                                 chatClientModel.setIpAddress(ipAddress.getText());
                                 chatClientModel.setUserName(userName.getText());
                                 switchSceneToChatClientGUI("ChatClientGUI.fxml");
-                                System.out.println("Server connected");
                             }
                             else {
                                 alert("Invalid port Number");

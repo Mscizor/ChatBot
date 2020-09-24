@@ -15,7 +15,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
+import java.util.Vector;
 
 public class ChatServerGUIController{
 
@@ -25,7 +25,9 @@ public class ChatServerGUIController{
     private ServerSocket serverSocket;
     volatile private Socket serverEndpointOne = null;
     volatile private Socket serverEndpointTwo = null;
-    private Socket tempSocket = null;
+    public static Vector<ClientHandler> clist;
+    public boolean serverStart;
+    public static int i = 0;
 
     @FXML
     private Stage stage;
@@ -85,7 +87,7 @@ public class ChatServerGUIController{
             serverSocket = new ServerSocket(nPort);
             //get date and time for timestamp
             String formattedDate = getDateAndTime();
-            serverLog.setText(formattedDate + "\t\t\t" +"Server: Listening on port " + nPort + "...\n");
+            serverLog.setText(formattedDate + "\t\t\tListening on port " + nPort + "...\n");
         }
         catch(IOException e) {
             e.printStackTrace();
@@ -93,69 +95,47 @@ public class ChatServerGUIController{
 
             //Thread for accepting clients
             Runnable runnable = () -> {
-                try {
-                    //accepts first client
-                    serverEndpointOne = serverSocket.accept();
-                    //get date and time for timestamp
-                    String formattedDate = getDateAndTime();
-                    serverLog.setText(serverLog.getText() + formattedDate + "\t\t\t" + "A new client is connected : " + serverEndpointOne.getRemoteSocketAddress() + "\n");
+                serverStart = true;
+                clist = new Vector<ClientHandler>();
+                while(true){
+                    try {
+                        //terminate server process where there are no clients left connected
 
-                    //accepts second client
-                    serverEndpointTwo = serverSocket.accept();
-                    //get date and time for timestamp
-                    formattedDate = getDateAndTime();
-                    serverLog.setText(serverLog.getText() + formattedDate + "\t\t\t" + "A new client is connected : " + serverEndpointTwo.getRemoteSocketAddress() + "\n");
-                    // create a new thread object
-                    ClientHandler c1 = new ClientHandler(serverEndpointOne, serverEndpointTwo, serverLog);
-                    ClientHandler c2 = new ClientHandler(serverEndpointTwo, serverEndpointOne, serverLog);
-                    Thread t1 = new Thread(c1);
-                    Thread t2 = new Thread(c2);
-                    t1.start();
-                    t2.start();
-                    Boolean connected = true;
-                    while (true) {
-                        if (!c1.getConnected()) {
-                            c1.setConnected(true);
-                            serverEndpointOne = null;
+                        if (serverStart && (clist.size()==1)) {
+                            i++;
+                            serverStart = false;
                         }
-                        if (!c2.getConnected()) {
-                            c2.setConnected(true);
-                            serverEndpointTwo = null;
+
+                        //if no more client
+                        if (ChatServerGUIController.clist.size() == 0 && !serverStart)
+                            throw new Exception("No more clients connected.");
+
+                        if (ChatServerGUIController.clist.size() < 2) {
+                            Socket client = serverSocket.accept();
+                            String formattedDate = getDateAndTime();
+                            serverLog.setText(serverLog.getText() + formattedDate + "\t\t\tNew client connected: " + client.getRemoteSocketAddress() + "\n");
+
+                            //Initialize streams
+                            DataInputStream input = new DataInputStream(client.getInputStream());
+                            DataOutputStream output = new DataOutputStream(client.getOutputStream());
+
+                            //Create thread
+                            ClientHandler conn = new ClientHandler (client, ""+i, input, output, serverLog);
+                            Thread t = new Thread (conn);
+                            clist.add(i, conn);
+                            t.start();
                         }
-                        if (serverEndpointOne == null) { //if endpoint one is null
-                            //accepts first client
-                            serverEndpointOne = serverSocket.accept();
-                            //get date and time for timestamp
-                            formattedDate = getDateAndTime();
-                            serverLog.setText(serverLog.getText() + formattedDate + "\t\t\t" + "A new client is connected : " + serverEndpointOne.getRemoteSocketAddress() + "\n");
-                            System.out.println("Endpoint one");
-                            c1.setSocket1(serverEndpointOne);
-                            c2.setSocket2(serverEndpointOne);
-                            System.out.println("Endpoint two");
-                            c1.setSocket2(serverEndpointTwo);
-                            c2.setSocket1(serverEndpointTwo);
-                            c1.setConnected(false);
-                        }
-                        if (serverEndpointTwo == null) { //if endpoint two is null
-                            //accepts second client
-                            serverEndpointTwo = serverSocket.accept();
-                            //get date and time for timestamp
-                            formattedDate = getDateAndTime();
-                            serverLog.setText(serverLog.getText() + formattedDate + "\t\t\t" + "A new client is connected : " + serverEndpointTwo.getRemoteSocketAddress() + "\n");
-                            // create a new thread object
-                            //c2 = new ClientHandler(serverEndpointTwo, serverEndpointOne, serverLog);
-                            System.out.println("Endpoint two");
-                            c2.setSocket1(serverEndpointTwo);
-                            c1.setSocket2(serverEndpointTwo);
-                            System.out.println("Endpoint one");
-                            c2.setSocket2(serverEndpointOne);
-                            c1.setSocket1(serverEndpointOne);
-                            c2.setConnected(false);
-                        }
+                    } catch (Exception e){
+                        e.printStackTrace();
+                        break;
                     }
+                }
+                String formattedDate = getDateAndTime();
+                serverLog.setText(serverLog.getText() + formattedDate + "\t\t\tBoth client disconnected. Server terminated"); //not working
+                try {
+                    serverSocket.close();
                 } catch (IOException e) {
                     e.printStackTrace();
-                    System.out.println("Error");
                 }
             };
             Thread t = new Thread(runnable);
@@ -172,8 +152,6 @@ public class ChatServerGUIController{
                     serverEndpointOne.close();
                     serverEndpointTwo.close();
                     */
-                    System.out.println("Server: Connection terminated");
-
                 } catch (IOException s) {
                     s.printStackTrace();
                 }
