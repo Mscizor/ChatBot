@@ -15,11 +15,11 @@ public class ClientMessages implements Runnable{
     DataOutputStream dos;
     StringTokenizer st;
 
-    private void setConnected(Boolean b){
+    public void setConnected(Boolean b){
         connected = b;
     }
 
-    private boolean getConnected(){
+    public boolean getConnected(){
         return connected;
     }
 
@@ -39,9 +39,9 @@ public class ClientMessages implements Runnable{
     @Override
     public void run() {
         try {
+            System.out.println("In of Client Messages");
             while (connected) {
-                String data = dis.  readUTF();
-                System.out.println(data);
+                String data = dis.readUTF();
                 st = new StringTokenizer(data);
                 String type = st.nextToken();
 
@@ -79,7 +79,16 @@ public class ClientMessages implements Runnable{
                 }
             }
         } catch (IOException e) {
+            connected = false;
+            //Close the socket
+            try {
+                s.close();
+            } catch (IOException ex) {
+                connected = false;
+                ex.printStackTrace();
+            }
             e.printStackTrace();
+            System.out.println("out of Client Messages");
         }}
     }
 

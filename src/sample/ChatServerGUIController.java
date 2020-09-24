@@ -25,8 +25,8 @@ public class ChatServerGUIController{
     private String log;
     private Boolean connected = true;
     private ServerSocket serverSocket;
-    private Socket serverEndpointOne;
-    private Socket serverEndpointTwo;
+    private Socket serverEndpointOne = null;
+    private Socket serverEndpointTwo = null;
 
     @FXML
     private Stage stage;
@@ -39,12 +39,22 @@ public class ChatServerGUIController{
     public Label labelIPAddress;
     @FXML
     private Button disconnect;
+    @FXML
+    private Button saveLog;
 
     /*
     This method sends the user to the ChatGUI window.
     */
     @FXML
     public void disconnect(){
+
+    }
+
+    /*
+    This method save the server log
+    */
+    @FXML
+    public void saveLog(){
 
     }
 
@@ -82,39 +92,95 @@ public class ChatServerGUIController{
             e.printStackTrace();
         }
 
-            serverEndpointOne = null;
-            try {
-                //accepts first client
-                serverEndpointOne = serverSocket.accept();
-                //get date and time for timestamp
-                String formattedDate = getDateAndTime();
-                serverLog.setText(serverLog.getText() + "\n" + formattedDate + "\t\t\t" + "A new client is connected : " + serverEndpointOne.getRemoteSocketAddress());
-
-                //accepts second client
-                serverEndpointTwo = serverSocket.accept();
-                //get date and time for timestamp
-                formattedDate = getDateAndTime();
-                serverLog.setText(serverLog.getText() + "\n" + formattedDate + "\t\t\t" + "A new client is connected : " + serverEndpointTwo.getRemoteSocketAddress() + "\n");
-
-                // create a new thread object
-                ClientHandler c1 = new ClientHandler(serverEndpointOne, serverEndpointTwo, serverLog);
-                Thread t1 = new Thread(c1);
-
-                ClientHandler c2 = new ClientHandler(serverEndpointTwo, serverEndpointOne, serverLog);
-                Thread t2 = new Thread(c2);
-
-                // Invoking the start() method
-                t1.start();
-                t2.start();
-            } catch (IOException e) {
+            //Thread for accepting clients
+            Runnable runnable = () -> {
                 try {
-                    serverEndpointOne.close();
-                    serverEndpointTwo.close();
-                } catch (IOException e1) {
-                    e1.printStackTrace();
+                    //accepts first client
+                    serverEndpointOne = serverSocket.accept();
+                    //get date and time for timestamp
+                    String formattedDate = getDateAndTime();
+                    serverLog.setText(serverLog.getText() + "\n" + formattedDate + "\t\t\t" + "A new client is connected : " + serverEndpointOne.getRemoteSocketAddress());
+
+                    //accepts second client
+                    serverEndpointTwo = serverSocket.accept();
+                    //get date and time for timestamp
+                    formattedDate = getDateAndTime();
+                    serverLog.setText(serverLog.getText() + "\n" + formattedDate + "\t\t\t" + "A new client is connected : " + serverEndpointTwo.getRemoteSocketAddress() + "\n");
+                    // create a new thread object
+                    ClientHandler c1 = new ClientHandler(serverEndpointOne, serverEndpointTwo, serverLog);
+                    ClientHandler c2 = new ClientHandler(serverEndpointTwo, serverEndpointOne, serverLog);
+                    Thread t1 = new Thread(c1);
+                    Thread t2 = new Thread(c2);
+                    t1.start();
+                    t2.start();
+                    Boolean connected = true;
+                    while (true) {
+                        //if both endpoints are null
+                        if (serverEndpointOne == null && serverEndpointTwo == null) {
+                            System.out.println("BOTH");
+
+                            //accepts first client
+                            System.out.println("both accept");
+                            serverEndpointOne = serverSocket.accept();
+                            //get date and time for timestamp
+                            formattedDate = getDateAndTime();
+                            serverLog.setText(serverLog.getText() + "\n" + formattedDate + "\t\t\t" + "A new client is connected : " + serverEndpointOne.getRemoteSocketAddress());
+
+                            //accepts second client
+                            serverEndpointTwo = serverSocket.accept();
+                            //get date and time for timestamp
+                            formattedDate = getDateAndTime();
+                            serverLog.setText(serverLog.getText() + formattedDate + "\t\t\t" + "A new client is connected : " + serverEndpointTwo.getRemoteSocketAddress() + "\n");
+
+                            //set socket
+                            c1.setSocket(serverEndpointOne,serverEndpointTwo);
+                            c2.setSocket(serverEndpointTwo,serverEndpointOne);
+                        }
+                        else if (serverEndpointOne == null) { //if endpoint one is null
+                            System.out.println("FIRST");
+                            //accepts first client
+                            System.out.println("first accept");
+                            serverEndpointOne = serverSocket.accept();
+                            //get date and time for timestamp
+                            formattedDate = getDateAndTime();
+                            serverLog.setText(serverLog.getText() + formattedDate + "\t\t\t" + "A new client is connected : " + serverEndpointOne.getRemoteSocketAddress() + "\n");
+
+                            c1.setSocket(serverEndpointOne,serverEndpointTwo);
+                            c2.setSocket(serverEndpointTwo,serverEndpointOne);
+                        }
+                        else if (serverEndpointTwo == null) { //if endpoint two is null\
+                            System.out.println("SECOND");
+                            //accepts second client
+                            System.out.println("second accept");
+                            serverEndpointTwo = serverSocket.accept();
+                            //get date and time for timestamp
+                            formattedDate = getDateAndTime();
+                            serverLog.setText(serverLog.getText() + formattedDate + "\t\t\t" + "A new client is connected : " + serverEndpointTwo.getRemoteSocketAddress() + "\n");
+                            // create a new thread object
+                            //c2 = new ClientHandler(serverEndpointTwo, serverEndpointOne, serverLog);
+                            c1.setSocket(serverEndpointOne,serverEndpointTwo);
+                            c2.setSocket(serverEndpointTwo,serverEndpointOne);
+                            //t2 = new Thread(c2);
+                            //t2.start();
+                        }
+                        if (c1.getConnected() == false) {
+                            System.out.println("c1 false");
+                            //c1.setConnected(true);
+                            serverEndpointOne = null;
+                        }
+                        if (c2.getConnected() == false) {
+                            System.out.println("c2 false");
+                            //c2.setConnected(true);
+                            serverEndpointTwo = null;
+                        }
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    System.out.println("Error");
                 }
-                e.printStackTrace();
-            }
+            };
+            Thread t = new Thread(runnable);
+            t.start();
 
 
         disconnect.setOnMousePressed(new EventHandler<MouseEvent>() {
@@ -132,6 +198,13 @@ public class ChatServerGUIController{
                 } catch (IOException s) {
                     s.printStackTrace();
                 }
+            }
+        });
+
+        saveLog.setOnMousePressed(new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                System.out.println("save clicked");
             }
         });
 

@@ -31,8 +31,6 @@ public class ChatClientGUIController{
     @FXML
     private Button exit;
     @FXML
-    private Button save;
-    @FXML
     private Button file;
     @FXML
     private Button send;
@@ -46,14 +44,6 @@ public class ChatClientGUIController{
     */
     @FXML
     public void exit(){
-
-    }
-
-    /*
-    This method saves the log
-    */
-    @FXML
-    public void save(){
 
     }
 
@@ -84,10 +74,11 @@ public class ChatClientGUIController{
         catch(Exception e) {
             e.printStackTrace();
         }
+        System.out.println("CHATCLIENTGUICONTROLLER");
+        ClientMessages c1 = new ClientMessages(clientEndpoint, messageLog);
 
         try {
             // create a new thread object
-            ClientMessages c1 = new ClientMessages(clientEndpoint, messageLog);
             Thread t1 = new Thread(c1);
             t1.start();
         }
@@ -99,19 +90,16 @@ public class ChatClientGUIController{
             @Override
             public void handle(MouseEvent event) {
                 try {
-
+                    //Close the socket of client (clientEndpoint) (.setConnected(false))
+                    //DataOutputStream dos1 = new DataOutputStream(clientEndpoint.getOutputStream());
+                    //dos1.writeUTF("exit");
+                    //c1.setConnected(false);
+                    clientEndpoint.close();
                     switchSceneToChatClient("ChatClient.fxml");
 
                 } catch (IOException s) {
                     s.printStackTrace();
                 }
-            }
-        });
-
-        save.setOnMousePressed(new EventHandler<MouseEvent>() {
-            @Override
-            public void handle(MouseEvent event) {
-                System.out.println("Save clicked");
             }
         });
 
@@ -158,6 +146,7 @@ public class ChatClientGUIController{
             @Override
             public void handle(MouseEvent event) {
                 try {
+                    System.out.println(clientEndpoint + " send");
                     DataOutputStream dos1 = new DataOutputStream(clientEndpoint.getOutputStream());
                     dos1.writeUTF("message " + chatClientModel.getUserName() + ": " + textMessage.getText());
                     messageLog.setText(messageLog.getText() + chatClientModel.getUserName() + ": " + textMessage.getText() + "\n");
