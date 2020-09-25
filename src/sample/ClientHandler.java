@@ -55,11 +55,7 @@ public class ClientHandler implements Runnable {
             try {
                 // receive message from socket 1
                 String data = null;
-                try {
                     data = input.readUTF();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
                 //this block is for the first client 0 means first client
                 if (name.equals("0")) {
                     if (ChatServerGUIController.clist.size() == 2) {
@@ -74,11 +70,12 @@ public class ClientHandler implements Runnable {
                     } else {
                         //this.output.writeUTF("SERVER: Unable to send message. Other client has disconnected.\n");
                         alert("Cannot send to disconnected client");
+                        this.output.writeUTF("SERVER: Unable to send message. Other client has disconnected.\n");
                         String formattedDate = getDateAndTime();
                         serverLog.setText(serverLog.getText() + formattedDate + "\t\t\tClient tried to send message to disconnected client\n");
                     }
                 }
-                else { //this block is for the second client 1 means second client
+                else if (name.equals("1")) { //this block is for the second client 1 means second client
                     if (ChatServerGUIController.clist.size() == 2) {
                         String formattedDate = getDateAndTime();
                         try {
@@ -89,7 +86,7 @@ public class ClientHandler implements Runnable {
                         }
                     } else {
                         alert("Cannot send to disconnected client");
-                        //this.output.writeUTF("SERVER: Unable to send message. Other client has disconnected.\n");
+                        this.output.writeUTF("SERVER: Unable to send message. Other client has disconnected.\n");
                     }
                 }
             } catch (Exception e) {
@@ -99,6 +96,7 @@ public class ClientHandler implements Runnable {
                 else
                     ChatServerGUIController.clist.removeElementAt(0);
                 ChatServerGUIController.i = Integer.parseInt(name);
+                System.out.println("Client handler break " + ChatServerGUIController.clist.size());
                 break;
             }
         }

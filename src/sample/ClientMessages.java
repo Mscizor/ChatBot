@@ -17,6 +17,7 @@ public class ClientMessages implements Runnable{
 
     public void setConnected(Boolean b){
         connected = b;
+        System.out.println("Set connected to " + connected + " successfully");
     }
 
     public boolean getConnected(){
@@ -42,21 +43,22 @@ public class ClientMessages implements Runnable{
      */
     @Override
     public void run() {
+            try{
+                while(true){
+                    String data = dis.readUTF();
+                    messageLog.setText(messageLog.getText() + data + "\n");
+                }
+            }
+            catch(IOException ex) {
+                System.out.println("Client messages READUTF " + s.getRemoteSocketAddress());
+                //ex.printStackTrace();
+            }
         try {
-            while (connected) {
-                String data = dis.readUTF();
-                messageLog.setText(messageLog.getText() + data + "\n");
-            }
+            s.close();
+            System.out.println(s.getRemoteSocketAddress() + " Closed");
         } catch (IOException e) {
-            connected = false;
-            //Close the socket
-            try {
-                s.close();
-            } catch (IOException ex) {
-                connected = false;
-                ex.printStackTrace();
-            }
             e.printStackTrace();
-        }}
+        }
     }
+}
 

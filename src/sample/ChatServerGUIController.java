@@ -17,6 +17,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Vector;
 
+import static java.lang.Thread.sleep;
+
 public class ChatServerGUIController{
 
     private ChatServerModel chatServerModel;
@@ -25,7 +27,7 @@ public class ChatServerGUIController{
     private ServerSocket serverSocket;
     volatile private Socket serverEndpointOne = null;
     volatile private Socket serverEndpointTwo = null;
-    public static Vector<ClientHandler> clist;
+    volatile public static Vector<ClientHandler> clist;
     public boolean serverStart;
     public static int i = 0;
 
@@ -95,22 +97,43 @@ public class ChatServerGUIController{
 
             //Thread for accepting clients
             Runnable runnable = () -> {
+            i=0;
                 serverStart = true;
                 clist = new Vector<ClientHandler>();
                 while(true){
                     try {
                         //terminate server process where there are no clients left connected
 
-                        if (serverStart && (clist.size()==1)) {
+                        if (serverStart && (ChatServerGUIController.clist.size()==1)) {
                             i++;
                             serverStart = false;
+                            Runnable clistChecker = () -> {
+                                Boolean serverConnected = true;
+                                while (serverConnected) {
+                                    if (ChatServerGUIController.clist.size() == 0) {
+                                        try {
+                                            serverSocket.close();
+                                            serverConnected = false;
+                                        } catch (IOException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                }
+                            };
+                            Thread t2 = new Thread(clistChecker);
+                            t2.start();
                         }
+                        System.out.println(ChatServerGUIController.clist.size());
 
                         //if no more client
-                        if (ChatServerGUIController.clist.size() == 0 && !serverStart)
+                        if (ChatServerGUIController.clist.size() == 0 && !serverStart) {
+                            System.out.println("no client");
                             throw new Exception("No more clients connected.");
+                        }
+
 
                         if (ChatServerGUIController.clist.size() < 2) {
+                            System.out.println("bruh");
                             Socket client = serverSocket.accept();
                             String formattedDate = getDateAndTime();
                             serverLog.setText(serverLog.getText() + formattedDate + "\t\t\tNew client connected: " + client.getRemoteSocketAddress() + "\n");
@@ -122,6 +145,7 @@ public class ChatServerGUIController{
                             //Create thread
                             ClientHandler conn = new ClientHandler (client, ""+i, input, output, serverLog);
                             Thread t = new Thread (conn);
+                            System.out.println(i + "clist i");
                             clist.add(i, conn);
                             t.start();
                         }
@@ -140,7 +164,6 @@ public class ChatServerGUIController{
             };
             Thread t = new Thread(runnable);
             t.start();
-
 
         disconnect.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
