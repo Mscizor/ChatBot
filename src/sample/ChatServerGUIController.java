@@ -97,7 +97,6 @@ public class ChatServerGUIController{
 
             //Thread for accepting clients
             Runnable runnable = () -> {
-            i=0;
                 serverStart = true;
                 clist = new Vector<ClientHandler>();
                 while(true){
@@ -123,7 +122,6 @@ public class ChatServerGUIController{
                             Thread t2 = new Thread(clistChecker);
                             t2.start();
                         }
-                        System.out.println(ChatServerGUIController.clist.size());
 
                         //if no more client
                         if (ChatServerGUIController.clist.size() == 0 && !serverStart) {
@@ -133,7 +131,6 @@ public class ChatServerGUIController{
 
 
                         if (ChatServerGUIController.clist.size() < 2) {
-                            System.out.println("bruh");
                             Socket client = serverSocket.accept();
                             String formattedDate = getDateAndTime();
                             serverLog.setText(serverLog.getText() + formattedDate + "\t\t\tNew client connected: " + client.getRemoteSocketAddress() + "\n");
@@ -155,8 +152,9 @@ public class ChatServerGUIController{
                     }
                 }
                 String formattedDate = getDateAndTime();
-                serverLog.setText(serverLog.getText() + formattedDate + "\t\t\tBoth client disconnected. Server terminated"); //not working
+                serverLog.setText(serverLog.getText() + formattedDate + "\t\t\tBoth client disconnected. Server terminated\n");
                 try {
+                    i=0;
                     serverSocket.close();
                 } catch (IOException e) {
                     e.printStackTrace();

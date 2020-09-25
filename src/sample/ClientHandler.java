@@ -68,7 +68,6 @@ public class ClientHandler implements Runnable {
                             e.printStackTrace();
                         }
                     } else {
-                        //this.output.writeUTF("SERVER: Unable to send message. Other client has disconnected.\n");
                         alert("Cannot send to disconnected client");
                         this.output.writeUTF("SERVER: Unable to send message. Other client has disconnected.\n");
                         String formattedDate = getDateAndTime();
