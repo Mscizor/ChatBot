@@ -12,13 +12,7 @@ import javafx.stage.Stage;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileSystemView;
-import java.io.DataOutputStream;
-import java.io.File;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.FileInputStream;
-import java.io.BufferedInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.net.Socket;
 
 public class ChatClientGUIController{
@@ -112,26 +106,16 @@ public class ChatClientGUIController{
 
                 if (returnValue == JFileChooser.APPROVE_OPTION) {
                     File selectedFile = jfc.getSelectedFile();
-                    int len = (int) selectedFile.length();
-                    int filesize = (int) Math.ceil(len / 100);
-                    String name = selectedFile.getName();
 
                     try {
                         DataOutputStream dos1 = new DataOutputStream(clientEndpoint.getOutputStream());
-                        dos1.writeUTF("file" + " " + name.replace(" ", "_") + " " + len);
+                        dos1.writeUTF("file" + " " + chatClientModel.getUserName());
 
-                        InputStream input = new FileInputStream(selectedFile);
-                        OutputStream output = clientEndpoint.getOutputStream();
-                        BufferedInputStream bis = new BufferedInputStream(input);
-
-                        byte [] byteArray = new byte[100];
-                        int count;
-                        while ((count = bis.read(byteArray)) > 0) {
-                            output.write(byteArray, 0, count);
-                        }
+                        ObjectOutputStream output = new ObjectOutputStream(clientEndpoint.getOutputStream());
+                        output.writeObject(selectedFile);
                         output.flush();
-                        output.close();
-                        messageLog.setText(messageLog.getText() + chatClientModel.getUserName() + ": Sent a file\n");
+
+                        messageLog.setText(messageLog.getText() + chatClientModel.getUserName() + ": Sent a file.\n");
                     }
                     catch (IOException e) {
                         e.printStackTrace();
@@ -147,7 +131,7 @@ public class ChatClientGUIController{
                 try {
                     //Send message to server
                     DataOutputStream dos1 = new DataOutputStream(clientEndpoint.getOutputStream());
-                    dos1.writeUTF(chatClientModel.getUserName() + ": " + textMessage.getText());
+                    dos1.writeUTF("message " + chatClientModel.getUserName() + ": " + textMessage.getText());
                     //Appends message to messageLog
                     messageLog.setText(messageLog.getText() + chatClientModel.getUserName() + ": " + textMessage.getText() + "\n");
                 }

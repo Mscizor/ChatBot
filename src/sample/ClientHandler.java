@@ -8,8 +8,7 @@ import java.net.Socket;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.StringTokenizer;
-
-import static java.lang.Thread.sleep;
+import java.util.Vector;
 
 public class ClientHandler implements Runnable {
     public Socket sock;
@@ -49,57 +48,94 @@ public class ClientHandler implements Runnable {
         return formattedDate;
     }
 
+    public void updateServerLog(String update) {
+        String formattedDate = getDateAndTime();
+        String serverText = serverLog.getText() + formattedDate + "\t\t\t";
+        serverLog.setText(serverText + update);
+    }
     @Override
     public void run() {
+
+        String formattedDate = getDateAndTime();
+        String serverText = serverLog.getText() + formattedDate + "\t\t\t" + this.sock.getRemoteSocketAddress();
+
         while (true) {
             try {
                 // receive message from socket 1
-                String data = null;
-                    data = input.readUTF();
-                //this block is for the first client 0 means first client
-                if (name.equals("0")) {
-                    if (ChatServerGUIController.clist.size() == 2) {
-                        String formattedDate = getDateAndTime();
+                String data = input.readUTF();
+                st = new StringTokenizer(data);
+                String type = st.nextToken();
+
+                Vector<ClientHandler> cList = ChatServerGUIController.cList;
+
+                int sendingTo;
+                if (name.equals("0"))
+                    sendingTo = 1;
+                else
+                    sendingTo = 0;
+
+                ClientHandler other = cList.get(sendingTo);
+
+                //this block is for the first client 0 means first client\
+                if (ChatServerGUIController.cList.size() == 2) {
+                    if (type.equals("message")) {
+                        String message = "";
+                        while (st.hasMoreTokens()) {
+                            if (message.equals(""))
+                                message = st.nextToken();
+                            else
+                                message = message + " " + st.nextToken();
+                        }
+
                         try {
-                            ChatServerGUIController.clist.get(1).output.writeUTF(data);
-                            //1 represents the second client
-                            serverLog.setText(serverLog.getText() + formattedDate + "\t\t\t" + sock.getRemoteSocketAddress() + " sent a message to " + ChatServerGUIController.clist.get(1).sock.getRemoteSocketAddress() + "\n");
+                            if (cList.size() == 2) {
+                                other.output.writeUTF("message " + message + "\n");
+                                updateServerLog(this.sock.getRemoteSocketAddress() + " sent a message to " + other.sock.getRemoteSocketAddress() + "\n");
+                            } else {
+                                alert("Cannot send to disconnected client");
+                                this.output.writeUTF("SERVER: Unable to send message. Other client has disconnected.\n");
+                            }
                         } catch (IOException e) {
                             e.printStackTrace();
                         }
                     } else {
-                        //this.output.writeUTF("SERVER: Unable to send message. Other client has disconnected.\n");
-                        alert("Cannot send to disconnected client");
-                        this.output.writeUTF("SERVER: Unable to send message. Other client has disconnected.\n");
-                        String formattedDate = getDateAndTime();
-                        serverLog.setText(serverLog.getText() + formattedDate + "\t\t\tClient tried to send message to disconnected client\n");
-                    }
-                }
-                else if (name.equals("1")) { //this block is for the second client 1 means second client
-                    if (ChatServerGUIController.clist.size() == 2) {
-                        String formattedDate = getDateAndTime();
+                        String username = st.nextToken();
                         try {
-                            ChatServerGUIController.clist.get(0).output.writeUTF(data);
-                            serverLog.setText(serverLog.getText() + formattedDate + "\t\t\t" + sock.getRemoteSocketAddress() + " sent a message to " + ChatServerGUIController.clist.get(0).sock.getRemoteSocketAddress() + "\n");
-                        } catch (IOException e) {
+                            if (cList.size() == 2) {
+                                other.output.writeUTF("file " + username + "\n");
+                                ObjectInputStream inputFile = new ObjectInputStream(this.sock.getInputStream());
+                                ObjectOutputStream outputFile = new ObjectOutputStream(other.sock.getOutputStream());
+
+                                File fileSent = (File) inputFile.readObject();
+                                outputFile.writeObject(fileSent);
+                                outputFile.flush();
+
+                                updateServerLog(this.sock.getRemoteSocketAddress() + " sent a file to " + other.sock.getRemoteSocketAddress() + "\n");
+                            } else {
+                                alert("Cannot send to disconnected client");
+                                this.output.writeUTF("SERVER: Unable to send message. Other client has disconnected.\n");
+                            }
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
-                    } else {
-                        alert("Cannot send to disconnected client");
-                        this.output.writeUTF("SERVER: Unable to send message. Other client has disconnected.\n");
                     }
+                } else {
+                    alert("Cannot send to disconnected client");
+                    this.output.writeUTF("SERVER: Unable to send message. Other client has disconnected.\n");
+                    updateServerLog("Client tried to send message to disconnected client\n");
                 }
             } catch (Exception e) {
                 //Remove a list if 2
-                if (ChatServerGUIController.clist.size() == 2)
-                    ChatServerGUIController.clist.removeElementAt(Integer.parseInt(name));
+                if (ChatServerGUIController.cList.size() == 2)
+                    ChatServerGUIController.cList.removeElementAt(Integer.parseInt(name));
                 else
-                    ChatServerGUIController.clist.removeElementAt(0);
+                    ChatServerGUIController.cList.removeElementAt(0);
                 ChatServerGUIController.i = Integer.parseInt(name);
-                System.out.println("Client handler break " + ChatServerGUIController.clist.size());
+                System.out.println("Client handler break " + ChatServerGUIController.cList.size());
                 break;
             }
         }
+
         try {
             //Close streams
             this.input.close();
@@ -107,8 +143,7 @@ public class ClientHandler implements Runnable {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            String formattedDate = getDateAndTime();
-            serverLog.setText(serverLog.getText()+ formattedDate + "\t\t\tServer: Client " + sock.getRemoteSocketAddress() + " disconnected\n");
+            updateServerLog("Server: Client " + sock.getRemoteSocketAddress() + " disconnected\n");
         }
     }
 }
