@@ -47,7 +47,6 @@ public class ChatClientController{
         enter.setOnMousePressed(new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
-                System.out.println("Enter clicked");
                 try {
                     boolean empty=false;
                     boolean numeric= true;

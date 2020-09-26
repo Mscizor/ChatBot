@@ -64,9 +64,7 @@ public class ChatServerController{
                             if ((Integer.parseInt(portNumber.getText()) > 0) &&
                                     (Integer.parseInt(portNumber.getText()) <= 65535)) {
                                 chatServerModel.setPortNumber(portNumber.getText());
-                                System.out.println(chatServerModel.getPortNumber());
                                 switchSceneToServerGUI("ChatServerGUI.fxml");
-                                System.out.println("Server connected");
                             }
                             else {
                                 alert("Invalid port Number");

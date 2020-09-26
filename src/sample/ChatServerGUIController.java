@@ -1,14 +1,14 @@
 package sample;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextArea;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
-import javafx.scene.input.MouseEvent;
-import javafx.stage.Stage;
-import javafx.scene.control.Button;
-import javafx.scene.Scene;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
+import javafx.scene.input.MouseEvent;
+import javafx.stage.Stage;
 
 import java.io.*;
 import java.net.ServerSocket;
@@ -17,17 +17,13 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Vector;
 
-import static java.lang.Thread.sleep;
-
 public class ChatServerGUIController{
 
     private ChatServerModel chatServerModel;
     private String log;
     private Boolean connected = true;
     private ServerSocket serverSocket;
-    volatile private Socket serverEndpointOne = null;
-    volatile private Socket serverEndpointTwo = null;
-    volatile public static Vector<ClientHandler> clist;
+    volatile public static Vector<ClientHandler> cList;
     public boolean serverStart;
     public static int i = 0;
 
@@ -97,19 +93,20 @@ public class ChatServerGUIController{
 
             //Thread for accepting clients
             Runnable runnable = () -> {
+            i=0;
                 serverStart = true;
-                clist = new Vector<ClientHandler>();
+                this.cList = new Vector<ClientHandler>();
                 while(true){
                     try {
                         //terminate server process where there are no clients left connected
 
-                        if (serverStart && (ChatServerGUIController.clist.size()==1)) {
+                        if (serverStart && (ChatServerGUIController.cList.size()==1)) {
                             i++;
                             serverStart = false;
-                            Runnable clistChecker = () -> {
+                            Runnable cListChecker = () -> {
                                 Boolean serverConnected = true;
                                 while (serverConnected) {
-                                    if (ChatServerGUIController.clist.size() == 0) {
+                                    if (ChatServerGUIController.cList.size() == 0) {
                                         try {
                                             serverSocket.close();
                                             serverConnected = false;
@@ -119,18 +116,17 @@ public class ChatServerGUIController{
                                     }
                                 }
                             };
-                            Thread t2 = new Thread(clistChecker);
+                            Thread t2 = new Thread(cListChecker);
                             t2.start();
                         }
 
                         //if no more client
-                        if (ChatServerGUIController.clist.size() == 0 && !serverStart) {
-                            System.out.println("no client");
+                        if (ChatServerGUIController.cList.size() == 0 && !serverStart) {
                             throw new Exception("No more clients connected.");
                         }
 
 
-                        if (ChatServerGUIController.clist.size() < 2) {
+                        if (ChatServerGUIController.cList.size() < 2) {
                             Socket client = serverSocket.accept();
                             String formattedDate = getDateAndTime();
                             serverLog.setText(serverLog.getText() + formattedDate + "\t\t\tNew client connected: " + client.getRemoteSocketAddress() + "\n");
@@ -142,8 +138,7 @@ public class ChatServerGUIController{
                             //Create thread
                             ClientHandler conn = new ClientHandler (client, ""+i, input, output, serverLog);
                             Thread t = new Thread (conn);
-                            System.out.println(i + "clist i");
-                            clist.add(i, conn);
+                            cList.add(i, conn);
                             t.start();
                         }
                     } catch (Exception e){
@@ -152,9 +147,8 @@ public class ChatServerGUIController{
                     }
                 }
                 String formattedDate = getDateAndTime();
-                serverLog.setText(serverLog.getText() + formattedDate + "\t\t\tBoth client disconnected. Server terminated\n");
+                serverLog.setText(serverLog.getText() + formattedDate + "\t\t\tBoth client disconnected. Server terminated\n"); //not working
                 try {
-                    i=0;
                     serverSocket.close();
                 } catch (IOException e) {
                     e.printStackTrace();
